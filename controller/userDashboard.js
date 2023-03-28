@@ -228,20 +228,10 @@ const CustomerOrder = async (req, res, next) => {
           paymentStatus: "pending",
         });
         if (orderExist) {
-          const itemExistInOrder = orderExist.items.find(
-            (items) => items.itemId == id
-          );
-          if (itemExistInOrder) {
-            itemExistInOrder.quantity += quantity;
-            orderExist.totalPrice = orderExist.totalPrice + quantity * price;
-            await orderExist.save();
-            update = true;
-          } else {
-            orderExist.items.push({ itemId: id, quantity, price });
-            orderExist.totalPrice = orderExist.totalPrice + quantity * price;
-            await orderExist.save();
-            added = true;
-          }
+          orderExist.items.push({ itemId: id, quantity, price });
+          orderExist.totalPrice = orderExist.totalPrice + quantity * price;
+          await orderExist.save();
+          added = true;
         } else {
           const order = new Order({
             customerId: req.rootUser._id,
@@ -305,61 +295,9 @@ const getorders = async (req, res, next) => {
       }
     }
 
-    // for (const element of orders) {
-    //   for (const elementItem of element.items) {
-    //     const item = await Item.findOne({
-    //       _id: elementItem.itemId,
-    //     });
-    //     if (!item) {
-    //       return res.status(400).json({ error: "Item not found" });
-    //     }
-    //     orderItem.push({
-    //       itemId: item._id,
-    //       itemName: item.name,
-    //       itemImage: item.image,
-    //       itemPrice: item.price,
-    //       itemQuantity: elementItem.quantity,
-    //       itemTotal: elementItem.price,
-    //     });
-    //   }
-    // }
-
     return res.status(200).json({
       orderItem,
     });
-
-    // return res.status(200).json({ order });
-
-    // if (!order) {
-    //   return res.status(400).json({ error: "Order not found" });
-    // }
-    // const orderItem = [];
-    // const vendor = await Vendor.findOne({
-    //   _id: order.vendorId,
-    // });
-    // for (const element of order.items) {
-    //   const item = await Item.findOne({
-    //     _id: element.itemId,
-    //   });
-    //   if (!item) {
-    //     return res.status(400).json({ error: "Item not found" });
-    //   }
-    //   orderItem.push({
-    //     itemId: item._id,
-    //     itemName: item.name,
-    //     itemImage: item.image,
-    //     itemPrice: item.price,
-    //     itemQuantity: element.quantity,
-    //     itemTotal: order.totalPrice,
-    //     vendorName: vendor.name,
-    //     PaymentStatus: order.paymentStatus,
-    //     productStatus: order.status,
-    //   });
-    // }
-    // return res.status(200).json({
-    //   orderItem,
-    //   total: order.totalPrice,
-    // });
   } catch (err) {
     return next(err);
   }
